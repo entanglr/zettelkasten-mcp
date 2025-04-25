@@ -2,6 +2,8 @@
 """Integration tests for the Zettelkasten MCP system."""
 import os
 import tempfile
+import shutil
+import gc
 from pathlib import Path
 import pytest
 from zettelkasten_mcp.config import config
@@ -13,15 +15,12 @@ from zettelkasten_mcp.services.search_service import SearchService
 class TestIntegration:
     """Integration tests for the entire Zettelkasten MCP system."""
     @pytest.fixture(autouse=True)
-    def setup_test_environment(self):
+    def setup_test_environment(self, request):
         """Set up test environment using temporary directories."""
         # Create temporary directories for test
-        self.temp_notes_dir = tempfile.TemporaryDirectory()
-        self.temp_db_dir = tempfile.TemporaryDirectory()
-        
-        # Configure paths
-        self.notes_dir = Path(self.temp_notes_dir.name)
-        self.database_path = Path(self.temp_db_dir.name) / "test_zettelkasten.db"
+        self.notes_dir = Path(tempfile.mkdtemp())
+        self.db_dir = Path(tempfile.mkdtemp())
+        self.database_path = self.db_dir / "test_zettelkasten.db"
         
         # Save original config values
         self.original_notes_dir = config.notes_dir
@@ -39,15 +38,44 @@ class TestIntegration:
         # Create server
         self.server = ZettelkastenMcpServer()
         
+        def cleanup():
+            # Clean up resources and connections
+            if hasattr(self, 'zettel_service') and hasattr(self.zettel_service, '_repository'):
+                if hasattr(self.zettel_service._repository, '_session'):
+                    self.zettel_service._repository._session.close()
+                if hasattr(self.zettel_service._repository, '_engine'):
+                    self.zettel_service._repository._engine.dispose()
+            
+            # Clean up MCP server connections if any
+            if hasattr(self, 'server') and hasattr(self.server, 'service'):
+                if hasattr(self.server.service, '_repository'):
+                    self.server.service._repository = None
+            
+            # Set objects to None to help with garbage collection
+            self.zettel_service = None
+            self.search_service = None
+            self.server = None
+            
+            # Force garbage collection to release file handles
+            gc.collect()
+            
+            # Restore original config
+            config.notes_dir = self.original_notes_dir
+            config.database_path = self.original_database_path
+            
+            # Clean up temp directories
+            try:
+                shutil.rmtree(self.notes_dir, ignore_errors=True)
+            except:
+                pass
+                
+            try:
+                shutil.rmtree(self.db_dir, ignore_errors=True)
+            except:
+                pass
+        
+        request.addfinalizer(cleanup)
         yield
-        
-        # Restore original config
-        config.notes_dir = self.original_notes_dir
-        config.database_path = self.original_database_path
-        
-        # Clean up temp directories
-        self.temp_notes_dir.cleanup()
-        self.temp_db_dir.cleanup()
     
     def test_create_note_flow(self):
         """Test the complete flow of creating and retrieving a note."""

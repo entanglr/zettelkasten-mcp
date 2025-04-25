@@ -21,6 +21,12 @@ def parse_args():
         default=os.environ.get("ZETTELKASTEN_NOTES_DIR")
     )
     parser.add_argument(
+        "--export-dir",
+        help="Directory for exporting knowledge base",
+        type=str,
+        default=os.environ.get("ZETTELKASTEN_EXPORT_DIR")
+    )
+    parser.add_argument(
         "--database-path",
         help="SQLite database file path",
         type=str,
@@ -38,6 +44,8 @@ def update_config(args):
     """Update the global config with command line arguments."""
     if args.notes_dir:
         config.notes_dir = Path(args.notes_dir)
+    if args.export_dir:
+        config.export_dir = Path(args.export_dir)
     if args.database_path:
         config.database_path = Path(args.database_path)
 
@@ -56,6 +64,8 @@ def main():
     notes_dir.mkdir(parents=True, exist_ok=True)
     db_dir = config.get_absolute_path(config.database_path).parent
     db_dir.mkdir(parents=True, exist_ok=True)
+    export_dir = config.get_absolute_path(config.export_dir)
+    export_dir.mkdir(parents=True, exist_ok=True)
     
     # Initialize database schema
     try:

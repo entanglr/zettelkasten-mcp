@@ -140,6 +140,16 @@ cp .env.example .env
 
 Then edit the file to configure your connection parameters.
 
+The following environment variables can be configured:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ZETTELKASTEN_BASE_DIR` | `.` | Base directory for the project |
+| `ZETTELKASTEN_NOTES_DIR` | `data/notes` | Directory for storing note files |
+| `ZETTELKASTEN_EXPORT_DIR` | `data/export` | Directory for exporting knowledge base |
+| `ZETTELKASTEN_DATABASE_PATH` | `data/db/zettelkasten.db` | SQLite database file path |
+| `ZETTELKASTEN_LOG_LEVEL` | `INFO` | Logging level |
+
 ## Usage
 
 ### Starting the Server
@@ -151,7 +161,7 @@ python -m zettelkasten_mcp.main
 Or with explicit configuration:
 
 ```bash
-python -m zettelkasten_mcp.main --notes-dir ./data/notes --database-path ./data/db/zettelkasten.db
+python -m zettelkasten_mcp.main --notes-dir ./data/notes --export-dir ./data/export --database-path ./data/db/zettelkasten.db
 ```
 
 ### Connecting to Claude Desktop
@@ -169,6 +179,7 @@ Add the following configuration to your Claude Desktop:
       ],
       "env": {
         "ZETTELKASTEN_NOTES_DIR": "/absolute/path/to/zettelkasten-mcp/data/notes",
+        "ZETTELKASTEN_EXPORT_DIR": "/absolute/path/to/zettelkasten-mcp/data/export",
         "ZETTELKASTEN_DATABASE_PATH": "/absolute/path/to/zettelkasten-mcp/data/db/zettelkasten.db",
         "ZETTELKASTEN_LOG_LEVEL": "INFO"
       }
@@ -197,6 +208,12 @@ All tools have been prefixed with `zk_` for better organization:
 | `zk_find_orphaned_notes` | Find notes with no connections |
 | `zk_list_notes_by_date` | List notes by creation/update date |
 | `zk_rebuild_index` | Rebuild the database index from Markdown files |
+| `zk_batch_create_notes` | Create multiple notes in a single operation |
+| `zk_batch_update_notes` | Update multiple notes in a single operation |
+| `zk_batch_delete_notes` | Delete multiple notes in a single operation |
+| `zk_batch_create_links` | Create multiple links between notes in a single operation |
+| `zk_batch_search_by_text` | Perform multiple text searches in a single operation |
+| `zk_export_knowledge_base` | Export the knowledge base as a well-structured, linked markdown collection |
 
 ## Project Structure
 
@@ -210,7 +227,8 @@ zettelkasten-mcp/
 │       └── server/       # MCP server implementation
 ├── data/
 │   ├── notes/            # Note storage (Markdown files)
-│   └── db/               # Database for indexing
+│   ├── db/               # Database for indexing
+│   └── export/           # Exported knowledge base
 ├── tests/                # Test suite
 ├── .env.example          # Environment variable template
 └── README.md

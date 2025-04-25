@@ -1,6 +1,6 @@
 """Base repository interface for data storage."""
 import abc
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Any, Generic, List, Optional, TypeVar
 from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)

@@ -4,14 +4,14 @@ import logging
 import os
 import threading
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, List, Optional, Union
 
 import frontmatter
-from sqlalchemy import and_, create_engine, func, or_, select, text
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import and_, func, or_, select, text
+from sqlalchemy.orm import joinedload
 
 from zettelkasten_mcp.config import config
-from zettelkasten_mcp.models.db_models import (Base, DBLink, DBNote, DBTag,
+from zettelkasten_mcp.models.db_models import (DBLink, DBNote, DBTag,
                                             get_session_factory, init_db)
 from zettelkasten_mcp.models.schema import Link, LinkType, Note, NoteType, Tag
 from zettelkasten_mcp.storage.base import Repository

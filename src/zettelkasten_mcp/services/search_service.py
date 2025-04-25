@@ -2,9 +2,12 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from sqlalchemy import func, select, text
+from sqlalchemy import select, text
 
-from zettelkasten_mcp.models.schema import LinkType, Note, NoteType, Tag
+from zettelkasten_mcp.models.schema import (
+    BatchOperationResult, BatchResult, Note, NoteType
+)
+
 from zettelkasten_mcp.services.zettel_service import ZettelService
 
 from sqlalchemy import or_
@@ -231,9 +234,17 @@ class SearchService:
         
         return matching_notes
     
-    def find_similar_notes(self, note_id: str) -> List[Tuple[Note, float]]:
-        """Find notes similar to the given note based on shared tags and links."""
-        return self.zettel_service.find_similar_notes(note_id)
+    def find_similar_notes(self, note_id: str, threshold: float = 0.5) -> List[Tuple[Note, float]]:
+        """Find notes similar to the given note based on shared tags and links.
+        
+        Args:
+            note_id: ID of the reference note
+            threshold: Similarity threshold (0.0-1.0)
+            
+        Returns:
+            List of tuples containing (note, similarity_score)
+        """
+        return self.zettel_service.find_similar_notes(note_id, threshold)
     
     def search_combined(
         self,
@@ -326,3 +337,279 @@ class SearchService:
         # Sort by score (descending)
         results.sort(key=lambda x: x.score, reverse=True)
         return results
+    
+    def batch_search_by_text(
+        self, 
+        queries: List[str],
+        include_content: bool = True,
+        include_title: bool = True,
+        limit: int = 10
+    ) -> BatchResult[List[SearchResult], str]:
+        """Perform multiple text searches in a batch.
+        
+        Args:
+            queries: List of search query strings
+            include_content: Whether to search in content
+            include_title: Whether to search in title
+            limit: Maximum number of results per query
+            
+        Returns:
+            BatchResult with results for each query
+        """
+        results = []
+        
+        for i, query in enumerate(queries):
+            try:
+                search_results = self.search_by_text(
+                    query=query,
+                    include_content=include_content,
+                    include_title=include_title
+                )
+                
+                # Apply the limit parameter
+                search_results = search_results[:limit]
+                
+                results.append(
+                    BatchOperationResult(
+                        success=True,
+                        item_id=query,
+                        result=search_results
+                    )
+                )
+            except Exception as e:
+                results.append(
+                    BatchOperationResult(
+                        success=False,
+                        item_id=query,
+                        error=str(e)
+                    )
+                )
+        
+        # Calculate summary statistics
+        success_count = sum(1 for r in results if r.success)
+        
+        return BatchResult(
+            total_count=len(results),
+            success_count=success_count,
+            failure_count=len(results) - success_count,
+            results=results
+        )
+    
+    def batch_search_by_tag(
+        self, 
+        tag_queries: List[Union[str, List[str]]]
+    ) -> BatchResult[List[Note], str]:
+        """Perform multiple tag searches in a batch.
+        
+        Args:
+            tag_queries: List of tag queries, each being either a string or list of strings
+            
+        Returns:
+            BatchResult with results for each tag query
+        """
+        results = []
+        
+        for i, tags in enumerate(tag_queries):
+            try:
+                search_results = self.search_by_tag(tags)
+                
+                results.append(
+                    BatchOperationResult(
+                        success=True,
+                        item_id=str(tags) if isinstance(tags, str) else ",".join(tags),
+                        result=search_results
+                    )
+                )
+            except Exception as e:
+                tag_id = str(tags) if isinstance(tags, str) else ",".join(tags)
+                results.append(
+                    BatchOperationResult(
+                        success=False,
+                        item_id=tag_id,
+                        error=str(e)
+                    )
+                )
+        
+        # Calculate summary statistics
+        success_count = sum(1 for r in results if r.success)
+        
+        return BatchResult(
+            total_count=len(results),
+            success_count=success_count,
+            failure_count=len(results) - success_count,
+            results=results
+        )
+    
+    def batch_search_by_link(
+        self, 
+        link_queries: List[Dict[str, str]]
+    ) -> BatchResult[List[Note], str]:
+        """Perform multiple link searches in a batch.
+        
+        Args:
+            link_queries: List of dicts containing:
+                - note_id: ID of the note to search from/to
+                - direction: "outgoing", "incoming", or "both"
+            
+        Returns:
+            BatchResult with results for each link query
+        """
+        results = []
+        
+        for query in link_queries:
+            try:
+                note_id = query.get('note_id')
+                direction = query.get('direction', 'both')
+                
+                if not note_id:
+                    raise ValueError("note_id is required")
+                
+                search_results = self.search_by_link(note_id, direction)
+                
+                results.append(
+                    BatchOperationResult(
+                        success=True,
+                        item_id=f"{note_id}:{direction}",
+                        result=search_results
+                    )
+                )
+            except Exception as e:
+                note_id = query.get('note_id', 'unknown')
+                direction = query.get('direction', 'both')
+                results.append(
+                    BatchOperationResult(
+                        success=False,
+                        item_id=f"{note_id}:{direction}",
+                        error=str(e)
+                    )
+                )
+        
+        # Calculate summary statistics
+        success_count = sum(1 for r in results if r.success)
+        
+        return BatchResult(
+            total_count=len(results),
+            success_count=success_count,
+            failure_count=len(results) - success_count,
+            results=results
+        )
+    
+    def batch_find_similar_notes(
+        self, 
+        note_ids: List[str], 
+        threshold: float = 0.5
+    ) -> BatchResult[List[Tuple[Note, float]], str]:
+        """Find similar notes for multiple notes in a batch.
+        
+        Args:
+            note_ids: List of note IDs to find similar notes for
+            threshold: Similarity threshold
+            
+        Returns:
+            BatchResult with similar notes for each query
+        """
+        results = []
+        
+        for note_id in note_ids:
+            try:
+                similar_notes = self.find_similar_notes(note_id, threshold)
+                
+                results.append(
+                    BatchOperationResult(
+                        success=True,
+                        item_id=note_id,
+                        result=similar_notes
+                    )
+                )
+            except Exception as e:
+                results.append(
+                    BatchOperationResult(
+                        success=False,
+                        item_id=note_id,
+                        error=str(e)
+                    )
+                )
+        
+        # Calculate summary statistics
+        success_count = sum(1 for r in results if r.success)
+        
+        return BatchResult(
+            total_count=len(results),
+            success_count=success_count,
+            failure_count=len(results) - success_count,
+            results=results
+        )
+    
+    def batch_search_combined(
+        self, 
+        search_queries: List[Dict[str, Any]]
+    ) -> BatchResult[List[SearchResult], str]:
+        """Perform multiple combined searches in a batch.
+        
+        Args:
+            search_queries: List of dicts containing search parameters:
+                - text: Optional text query
+                - tags: Optional list of tags
+                - note_type: Optional note type
+                - start_date: Optional start date
+                - end_date: Optional end date
+                
+        Returns:
+            BatchResult with search results for each query
+        """
+        results = []
+        
+        for i, query in enumerate(search_queries):
+            try:
+                # Extract search parameters
+                text = query.get('text')
+                tags = query.get('tags')
+                note_type = query.get('note_type')
+                start_date = query.get('start_date')
+                end_date = query.get('end_date')
+                
+                # Perform search
+                search_results = self.search_combined(
+                    text=text,
+                    tags=tags,
+                    note_type=note_type,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                
+                # Construct a meaningful ID for this search
+                components = []
+                if text:
+                    components.append(f"text:{text}")
+                if tags:
+                    components.append(f"tags:{','.join(tags)}")
+                if note_type:
+                    components.append(f"type:{note_type}")
+                
+                item_id = " AND ".join(components) if components else f"search_{i}"
+                
+                results.append(
+                    BatchOperationResult(
+                        success=True,
+                        item_id=item_id,
+                        result=search_results
+                    )
+                )
+            except Exception as e:
+                results.append(
+                    BatchOperationResult(
+                        success=False,
+                        item_id=f"search_{i}",
+                        error=str(e)
+                    )
+                )
+        
+        # Calculate summary statistics
+        success_count = sum(1 for r in results if r.success)
+        
+        return BatchResult(
+            total_count=len(results),
+            success_count=success_count,
+            failure_count=len(results) - success_count,
+            results=results
+        )

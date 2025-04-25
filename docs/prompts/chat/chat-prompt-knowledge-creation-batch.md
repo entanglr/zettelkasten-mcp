@@ -17,3 +17,8 @@ I've attached a larger text/collection of information to process into my Zettelk
    - Terminology is consistent with my existing system
 
 Provide a summary of all notes created, connections established, and structure notes updated, along with any areas you've identified for follow-up work.
+
+Remember to leverage the batch operations tools for efficient processing:
+- When creating multiple notes at once
+- When establishing connections between notes
+- When searching multiple terms in one operation

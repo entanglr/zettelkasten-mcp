@@ -1,7 +1,6 @@
 """Configuration module for the Zettelkasten MCP server."""
 import os
 from pathlib import Path
-from typing import Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
@@ -18,6 +17,12 @@ class ZettelkastenConfig(BaseModel):
     notes_dir: Path = Field(
         default_factory=lambda: Path(
             os.getenv("ZETTELKASTEN_NOTES_DIR", "data/notes")
+        )
+    )
+    # Export configuration
+    export_dir: Path = Field(
+        default_factory=lambda: Path(
+            os.getenv("ZETTELKASTEN_EXPORT_DIR", "data/export")
         )
     )
     # Database configuration
