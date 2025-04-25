@@ -8,36 +8,50 @@ import inspect
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Union
 from pydantic import BaseModel, Field, field_validator
+import threading
+
+# Thread-safe counter for uniqueness
+_id_lock = threading.Lock()
+_last_timestamp = 0
+_counter = 0
 
 def generate_id() -> str:
-    """Generate an ISO 8601 compliant timestamp-based ID with nanosecond precision.
+    """Generate an ISO 8601 compliant timestamp-based ID with guaranteed uniqueness (pseudo-nanosecond precision).
     
     Returns:
-        A string in format "YYYYMMDDTHHMMSSsssssssss" where:
+        A string in format "YYYYMMDDTHHMMSSssssssccc" where:
         - YYYYMMDD is the date
         - T is the ISO 8601 date/time separator
         - HHMMSS is the time (hours, minutes, seconds)
-        - sssssssss is the 9-digit nanosecond component
+        - ssssss is the 6-digit microsecond component (from time.time())
+        - ccc is a 3-digit counter for uniqueness within the same microsecond
         
     The format follows ISO 8601 basic format with extended precision,
     allowing up to 1 billion unique IDs per second.
     """
-    # Get nanoseconds since epoch
-    ns_timestamp = time.time_ns()
-    
-    # Convert to seconds and nanosecond fraction
-    seconds = ns_timestamp // 1_000_000_000
-    nanoseconds = ns_timestamp % 1_000_000_000
-    
-    # Convert seconds to datetime
-    timestamp = dt.fromtimestamp(seconds)
-    
-    # Format as ISO 8601 basic format (YYYYMMDDThhmmss) with nanoseconds
-    # Use basic format (without separators except T) for filesystem compatibility
-    date_time = timestamp.strftime('%Y%m%dT%H%M%S')
-    
-    # Return the ISO 8601 timestamp with nanosecond precision
-    return f"{date_time}{nanoseconds:09d}"
+    global _last_timestamp, _counter
+
+    with _id_lock:
+        # Get current timestamp with microsecond precision
+        now = datetime.datetime.now()
+        # Create a timestamp in microseconds
+        current_timestamp = int(now.timestamp() * 1_000_000)
+
+        # If multiple IDs generated in same microsecond, increment counter
+        if current_timestamp == _last_timestamp:
+            _counter += 1
+        else:
+            _last_timestamp = current_timestamp
+            _counter = 0
+
+        # Ensure counter doesn't overflow our 3 digits
+        _counter %= 1000
+
+        # Format as ISO 8601 basic format with microseconds and counter
+        date_time = now.strftime('%Y%m%dT%H%M%S')
+        microseconds = now.microsecond
+
+        return f"{date_time}{microseconds:06d}{_counter:03d}"
 
 class LinkType(str, Enum):
     """Types of links between notes."""
