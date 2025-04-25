@@ -30,7 +30,7 @@ class ZettelkastenConfig(BaseModel):
     server_name: str = Field(
         default=os.getenv("ZETTELKASTEN_SERVER_NAME", "zettelkasten-mcp")
     )
-    server_version: str = Field(default="1.2.0")
+    server_version: str = Field(default="1.2.1")
     # Date format for ID generation (using ISO format for timestamps)
     id_date_format: str = Field(default="%Y%m%dT%H%M%S")
     # Default note template
