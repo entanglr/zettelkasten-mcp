@@ -6,4 +6,4 @@ to form a network of knowledge.
 
 This version uses synchronous operations.
 """
-__version__ = "1.2.0"
+__version__ = "1.2.1"
