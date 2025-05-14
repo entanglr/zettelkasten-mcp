@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/entanglr-zettelkasten-mcp-badge.png)](https://mseep.ai/app/entanglr-zettelkasten-mcp)
+
 # Zettelkasten MCP Server
 
 A Model Context Protocol (MCP) server that implements the Zettelkasten knowledge management methodology, allowing you to create, link, explore and synthesize atomic notes through Claude and other MCP-compatible clients.
