@@ -1,4 +1,5 @@
 # Zettelkasten MCP Server
+[![smithery badge](https://smithery.ai/badge/zettelkasten-mcp)](https://smithery.ai/server/zettelkasten-mcp)
 
 A Model Context Protocol (MCP) server that implements the Zettelkasten knowledge management methodology, allowing you to create, link, explore and synthesize atomic notes through Claude and other MCP-compatible clients.
 
@@ -113,6 +114,14 @@ This system uses a dual storage approach:
 If you edit Markdown files directly outside the system, you'll need to run the `zk_rebuild_index` tool to update the database. The database itself can be deleted at any time - it will be regenerated from your Markdown files.
 
 ## Installation
+
+### Installing via Smithery
+
+To install Zettelkasten MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/zettelkasten-mcp):
+
+```bash
+npx -y @smithery/cli install zettelkasten-mcp --client claude
+```
 
 ### Via uvx
 
