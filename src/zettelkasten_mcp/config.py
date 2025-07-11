@@ -12,18 +12,18 @@ class ZettelkastenConfig(BaseModel):
     """Configuration for the Zettelkasten server."""
     # Base directory for the project
     base_dir: Path = Field(
-        default_factory=lambda: Path(os.getenv("ZETTELKASTEN_BASE_DIR", "."))
+        default_factory=lambda: Path(os.getenv("ZETTELKASTEN_BASE_DIR") or "."))
     )
     # Storage configuration
     notes_dir: Path = Field(
         default_factory=lambda: Path(
-            os.getenv("ZETTELKASTEN_NOTES_DIR", "data/notes")
+            os.getenv("ZETTELKASTEN_NOTES_DIR") or "data/notes")
         )
     )
     # Database configuration
     database_path: Path = Field(
         default_factory=lambda: Path(
-            os.getenv("ZETTELKASTEN_DATABASE_PATH", "data/db/zettelkasten.db")
+            os.getenv("ZETTELKASTEN_DATABASE_PATH") or "data/db/zettelkasten.db")
         )
     )
     # Server configuration

@@ -164,6 +164,14 @@ python -m zettelkasten_mcp.main --notes-dir ./data/notes --database-path ./data/
 
 ### Connecting to Claude Desktop
 
+### Using smithery
+
+```bash
+npx -y @smithery/cli install zettelkasten-mcp --client claude
+```
+
+### Manually
+
 Add the following configuration to your Claude Desktop:
 
 ```json

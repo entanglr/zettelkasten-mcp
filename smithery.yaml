@@ -1,0 +1,8 @@
+version: 1
+start:
+  command: ["uvx", "--from", "git+https://github.com/Liam-Deacon/zettelkasten-mcp", "zettelkasten-mcp"]
+  env:
+    ZETTELKASTEN_NOTES_DIR: ""
+    ZETTELKASTEN_DATABASE_PATH: ""
+    ZETTELKASTEN_LOG_LEVEL: "INFO"
+  port: 8000
