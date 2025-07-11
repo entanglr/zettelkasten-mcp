@@ -15,5 +15,8 @@ ENV ZETTELKASTEN_LOG_LEVEL=INFO
 # Create necessary directories
 RUN mkdir -p /data/notes /data/db
 
+ENV FASTMCP_PORT=8000
+EXPOSE 8000
+
 # Set the entry point
 ENTRYPOINT ["zettelkasten-mcp"]
