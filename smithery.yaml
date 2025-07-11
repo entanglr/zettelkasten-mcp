@@ -36,17 +36,3 @@ startCommand:
     notesDir: /data/notes
     databasePath: /data/db/zettelkasten.db
     logLevel: INFO
-  commandFunction: |
-    config => ({
-      command: 'uvx',
-      args: [
-        '--from',
-        'git+https://github.com/entanglr/zettelkasten-mcp',
-        'zettelkasten-mcp'
-      ],
-      env: {
-        ZETTELKASTEN_NOTES_DIR: config.notesDir,
-        ZETTELKASTEN_DATABASE_PATH: config.databasePath,
-        ZETTELKASTEN_LOG_LEVEL: config.logLevel
-      }
-    })
