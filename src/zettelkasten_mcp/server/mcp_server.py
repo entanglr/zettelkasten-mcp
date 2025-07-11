@@ -604,4 +604,4 @@ class ZettelkastenMcpServer:
 
     def run(self) -> None:
         """Run the MCP server."""
-        return self.mcp.run(transport=config.transport)
+        self.mcp.run(transport=config.transport)
