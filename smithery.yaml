@@ -1,8 +1,48 @@
+---
 version: 1
-start:
-  command: ["zettelkasten-mcp"]
-  env:
-    ZETTELKASTEN_NOTES_DIR: ""
-    ZETTELKASTEN_DATABASE_PATH: ""
-    ZETTELKASTEN_LOG_LEVEL: "INFO"
-  port: 8000
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      notesDir:
+        type: string
+        title: Notes Directory
+        description: >-
+          Where the notes are stored.
+
+          Blank stores under `./data/notes`
+          relative path to mcp working directory.
+        default: ""
+      databasePath:
+        type: string
+        title: Database Path
+        description: >-
+          Where the SQLite DB resides.
+
+          Blank stores under `./data/db/zettelkasten.db`
+          relative path to mcp working directory.
+        default: ""
+      logLevel:
+        type: string
+        title: Log Level
+        default: INFO
+    required: ["notesDir", "databasePath"]
+  exampleConfig:
+    notesDir: /data/notes
+    databasePath: /data/db/zettelkasten.db
+    logLevel: INFO
+  commandFunction: |
+    config => ({
+      command: 'uvx',
+      args: [
+        '--from',
+        'git+https://github.com/entanglr/zettelkasten-mcp',
+        'zettelkasten-mcp'
+      ],
+      env: {
+        ZETTELKASTEN_NOTES_DIR: config.notesDir,
+        ZETTELKASTEN_DATABASE_PATH: config.databasePath,
+        ZETTELKASTEN_LOG_LEVEL: config.logLevel
+      }
+    })
