@@ -1,7 +1,7 @@
 """Configuration module for the Zettelkasten MCP server."""
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
@@ -10,20 +10,25 @@ load_dotenv()
 
 class ZettelkastenConfig(BaseModel):
     """Configuration for the Zettelkasten server."""
+    # FastMCP transport option - change to 'streamable-http' for docker + smithery
+    transport: Literal["streamable-http", "stdio"] = Field(
+        default_factory=lambda: os.getenv("ZETTELKASTEN_FASTMCP_TRANSPORT") or 'stdio'
+    )
+
     # Base directory for the project
     base_dir: Path = Field(
-        default_factory=lambda: Path(os.getenv("ZETTELKASTEN_BASE_DIR", "."))
+        default_factory=lambda: Path(os.getenv("ZETTELKASTEN_BASE_DIR") or ".")
     )
     # Storage configuration
     notes_dir: Path = Field(
         default_factory=lambda: Path(
-            os.getenv("ZETTELKASTEN_NOTES_DIR", "data/notes")
+            os.getenv("ZETTELKASTEN_NOTES_DIR") or "data/notes"
         )
     )
     # Database configuration
     database_path: Path = Field(
         default_factory=lambda: Path(
-            os.getenv("ZETTELKASTEN_DATABASE_PATH", "data/db/zettelkasten.db")
+            os.getenv("ZETTELKASTEN_DATABASE_PATH") or "data/db/zettelkasten.db"
         )
     )
     # Server configuration

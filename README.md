@@ -1,4 +1,5 @@
 # Zettelkasten MCP Server
+[![smithery badge](https://smithery.ai/badge/zettelkasten-mcp)](https://smithery.ai/server/zettelkasten-mcp)
 
 A Model Context Protocol (MCP) server that implements the Zettelkasten knowledge management methodology, allowing you to create, link, explore and synthesize atomic notes through Claude and other MCP-compatible clients.
 
@@ -114,6 +115,22 @@ If you edit Markdown files directly outside the system, you'll need to run the `
 
 ## Installation
 
+### Installing via Smithery
+
+To install Zettelkasten MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/zettelkasten-mcp):
+
+```bash
+npx -y @smithery/cli install zettelkasten-mcp --client claude
+```
+
+### Via uvx
+
+```bash
+uvx --from=git+https://github.com/entanglr/zettelkasten-mcp zettelkasten-mcp --notes-dir ./data/notes --database-path ./data/db/zettelkasten.db
+```
+
+### Local Development
+
 ```bash
 # Clone the repository
 git clone https://github.com/entanglr/zettelkasten-mcp.git
@@ -155,6 +172,14 @@ python -m zettelkasten_mcp.main --notes-dir ./data/notes --database-path ./data/
 ```
 
 ### Connecting to Claude Desktop
+
+### Using smithery
+
+```bash
+npx -y @smithery/cli install zettelkasten-mcp --client claude
+```
+
+### Manually
 
 Add the following configuration to your Claude Desktop:
 
