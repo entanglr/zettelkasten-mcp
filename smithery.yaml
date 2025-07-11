@@ -1,39 +1,35 @@
----
-version: 1
-runtime: "container"
-# build:
-#   dockerfile: Dockerfile
-#   dockerBuildPath: .
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+runtime: container
 startCommand:
-  type: stdio
-  # type: "http"
+  type: http
   configSchema:
+    # JSON Schema defining the configuration options for the MCP.
     type: object
+    required:
+      - notesDir
+      - databasePath
     properties:
+      logLevel:
+        type: string
+        default: INFO
       notesDir:
         type: string
-        title: Notes Directory
+        default: ""
         description: >-
           Where the notes are stored.
 
-          Blank stores under `./data/notes`
-          relative path to mcp working directory.
-        default: ""
+          Blank stores under `./data/notes` relative path to mcp working
+          directory.
       databasePath:
         type: string
-        title: Database Path
+        default: ""
         description: >-
           Where the SQLite DB resides.
 
-          Blank stores under `./data/db/zettelkasten.db`
-          relative path to mcp working directory.
-        default: ""
-      logLevel:
-        type: string
-        title: Log Level
-        default: INFO
-    required: ["notesDir", "databasePath"]
+          Blank stores under `./data/db/zettelkasten.db` relative path to mcp
+          working directory.
   exampleConfig:
+    logLevel: INFO
     notesDir: /data/notes
     databasePath: /data/db/zettelkasten.db
-    logLevel: INFO
