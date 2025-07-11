@@ -114,6 +114,14 @@ If you edit Markdown files directly outside the system, you'll need to run the `
 
 ## Installation
 
+### Via uvx
+
+```bash
+uvx --from=git+https://github.com/entanglr/zettelkasten-mcp zettelkasten-mcp --notes-dir ./data/notes --database-path ./data/db/zettelkasten.db
+```
+
+### Local Development
+
 ```bash
 # Clone the repository
 git clone https://github.com/entanglr/zettelkasten-mcp.git
