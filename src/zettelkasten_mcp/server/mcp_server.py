@@ -634,8 +634,7 @@ class ZettelkastenMcpServer:
         # Currently, we don't define prompts for the Zettelkasten server
         pass
 
-    @self.mcp.list_tools()
-    async def list_tools():
+    async def list_tools(self):
         return await self.mcp.list_tools()
 
     def run(self) -> None:
