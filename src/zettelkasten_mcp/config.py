@@ -10,11 +10,6 @@ load_dotenv()
 
 class ZettelkastenConfig(BaseModel):
     """Configuration for the Zettelkasten server."""
-    # FastMCP transport option - change to 'streamable-http' for docker + smithery
-    transport: Literal["streamable-http", "stdio"] = Field(
-        default_factory=lambda: os.getenv("ZETTELKASTEN_FASTMCP_TRANSPORT") or 'stdio'
-    )
-
     # Base directory for the project
     base_dir: Path = Field(
         default_factory=lambda: Path(os.getenv("ZETTELKASTEN_BASE_DIR") or ".")

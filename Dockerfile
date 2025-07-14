@@ -11,11 +11,11 @@ RUN pip install --no-cache-dir .
 ENV ZETTELKASTEN_NOTES_DIR=/data/notes
 ENV ZETTELKASTEN_DATABASE_PATH=/data/db/zettelkasten.db
 ENV ZETTELKASTEN_LOG_LEVEL=DEBUG
-ENV ZETTELKASTEN_FASTMCP_TRANSPORT=streamable-http
 
 # Create necessary directories
 RUN mkdir -p /data/notes /data/db
 
+ENV FASTMCP_TRANSPORT=stdio
 ENV FASTMCP_HOST 0.0.0.0
 ENV FASTMCP_PORT=8000
 EXPOSE 8000

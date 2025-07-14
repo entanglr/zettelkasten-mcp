@@ -2,7 +2,7 @@
 
 runtime: container
 startCommand:
-  type: http
+  type: stdio
   configSchema:
     # JSON Schema defining the configuration options for the MCP.
     type: object
