@@ -16,6 +16,7 @@ ENV ZETTELKASTEN_FASTMCP_TRANSPORT=streamable-http
 # Create necessary directories
 RUN mkdir -p /data/notes /data/db
 
+ENV FASTMCP_HOST 0.0.0.0
 ENV FASTMCP_PORT=8000
 EXPOSE 8000
 
