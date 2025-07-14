@@ -162,13 +162,13 @@ Then edit the file to configure your connection parameters.
 ### Starting the Server
 
 ```bash
-python -m zettelkasten_mcp.main
+python -m zettelkasten_mcp
 ```
 
 Or with explicit configuration:
 
 ```bash
-python -m zettelkasten_mcp.main --notes-dir ./data/notes --database-path ./data/db/zettelkasten.db
+python -m zettelkasten_mcp --notes-dir ./data/notes --database-path ./data/db/zettelkasten.db
 ```
 
 ### Connecting to Claude Desktop
@@ -190,7 +190,7 @@ Add the following configuration to your Claude Desktop:
       "command": "/absolute/path/to/zettelkasten-mcp/.venv/bin/python",
       "args": [
         "-m",
-        "zettelkasten_mcp.main"
+        "zettelkasten_mcp"
       ],
       "env": {
         "ZETTELKASTEN_NOTES_DIR": "/absolute/path/to/zettelkasten-mcp/data/notes",
