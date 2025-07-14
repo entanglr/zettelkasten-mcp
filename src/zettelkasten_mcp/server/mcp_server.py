@@ -634,15 +634,9 @@ class ZettelkastenMcpServer:
         # Currently, we don't define prompts for the Zettelkasten server
         pass
 
-    def get_tools(self) -> Dict[str, Any]:
-        """Get all registered tools."""
-        return {
-            name: {
-                "description": tool.description,
-                "parameters": tool.parameters
-            }
-            for name, tool in self.mcp.tools.items()
-        }
+    @self.mcp.list_tools()
+    async def list_tools():
+        return await self.mcp.list_tools()
 
     def run(self) -> None:
         """Run the MCP server."""
