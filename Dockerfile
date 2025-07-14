@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir .
 # Set environment variables
 ENV ZETTELKASTEN_NOTES_DIR=/data/notes
 ENV ZETTELKASTEN_DATABASE_PATH=/data/db/zettelkasten.db
-ENV ZETTELKASTEN_LOG_LEVEL=INFO
+ENV ZETTELKASTEN_LOG_LEVEL=DEBUG
 ENV ZETTELKASTEN_FASTMCP_TRANSPORT=streamable-http
 
 # Create necessary directories

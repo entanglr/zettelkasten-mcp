@@ -32,9 +32,13 @@ class ZettelkastenMcpServer:
 
     def initialize(self) -> None:
         """Initialize services."""
-        self.zettel_service.initialize()
-        self.search_service.initialize()
-        logger.info("Zettelkasten MCP server initialized")
+        try:
+            self.zettel_service.initialize()
+            self.search_service.initialize()
+            logger.info("Zettelkasten MCP server initialized")
+        except Exception as err:
+            logger.error(f"Failed to initialize services: {err}")
+            raise
 
     def format_error_response(self, error: Exception) -> str:
         """Format an error response in a consistent way.
@@ -102,6 +106,8 @@ class ZettelkastenMcpServer:
                 return f"Note created successfully with ID: {note.id}"
             except Exception as e:
                 return self.format_error_response(e)
+        
+        logger.debug("Tool zk_create_note registered")
 
         # Get a note by ID or title
         @self.mcp.tool(name="zk_get_note")
@@ -133,6 +139,8 @@ class ZettelkastenMcpServer:
                 return result
             except Exception as e:
                 return self.format_error_response(e)
+        
+        logger.debug("Tool zk_get_note registered")
 
         # Update a note
         @self.mcp.tool(name="zk_update_note")
@@ -182,6 +190,8 @@ class ZettelkastenMcpServer:
             except Exception as e:
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_update_note registered")
+
         # Delete a note
         @self.mcp.tool(name="zk_delete_note")
         def zk_delete_note(note_id: str) -> str:
@@ -200,6 +210,8 @@ class ZettelkastenMcpServer:
                 return f"Note deleted successfully: {note_id}"
             except Exception as e:
                 return self.format_error_response(e)
+
+        logger.debug("Tool zk_delete_note registered")
 
         # Add a link between notes
         @self.mcp.tool(name="zk_create_link")
@@ -245,6 +257,8 @@ class ZettelkastenMcpServer:
                 return self.format_error_response(e)
         self.zk_create_link = zk_create_link
 
+        logger.debug("Tool zk_create_link registered")
+
         # Remove a link between notes
         @self.mcp.tool(name="zk_remove_link")
         def zk_remove_link(
@@ -271,6 +285,8 @@ class ZettelkastenMcpServer:
                     return f"Link removed from {source_id} to {target_id}"
             except Exception as e:
                 return self.format_error_response(e)
+
+        logger.debug("Tool zk_remove_link registered")
 
         # Search for notes
         @self.mcp.tool(name="zk_search_notes")
@@ -330,6 +346,8 @@ class ZettelkastenMcpServer:
             except Exception as e:
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_search_notes registered")
+
         # Get linked notes
         @self.mcp.tool(name="zk_get_linked_notes")
         def zk_get_linked_notes(
@@ -379,6 +397,8 @@ class ZettelkastenMcpServer:
                 return self.format_error_response(e)
         self.zk_get_linked_notes = zk_get_linked_notes
 
+        logger.debug("Tool zk_get_linked_notes registered")
+
         # Get all tags
         @self.mcp.tool(name="zk_get_all_tags")
         def zk_get_all_tags() -> str:
@@ -397,6 +417,8 @@ class ZettelkastenMcpServer:
                 return output
             except Exception as e:
                 return self.format_error_response(e)
+
+        logger.debug("Tool zk_get_all_tags registered")
 
         # Find similar notes
         @self.mcp.tool(name="zk_find_similar_notes")
@@ -435,6 +457,8 @@ class ZettelkastenMcpServer:
             except Exception as e:
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_find_similar_notes registered")
+
         # Find central notes
         @self.mcp.tool(name="zk_find_central_notes")
         def zk_find_central_notes(limit: int = 10) -> str:
@@ -468,6 +492,8 @@ class ZettelkastenMcpServer:
             except Exception as e:
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_find_central_notes registered")
+
         # Find orphaned notes
         @self.mcp.tool(name="zk_find_orphaned_notes")
         def zk_find_orphaned_notes() -> str:
@@ -492,6 +518,8 @@ class ZettelkastenMcpServer:
                 return output
             except Exception as e:
                 return self.format_error_response(e)
+
+        logger.debug("Tool zk_find_orphaned_notes registered")
 
         # List notes by date range
         @self.mcp.tool(name="zk_list_notes_by_date")
@@ -567,6 +595,8 @@ class ZettelkastenMcpServer:
             except Exception as e:
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_list_notes_by_date registered")
+
         # Rebuild the index
         @self.mcp.tool(name="zk_rebuild_index")
         def zk_rebuild_index() -> str:
@@ -592,6 +622,8 @@ class ZettelkastenMcpServer:
                 logger.error(f"Failed to rebuild index: {e}", exc_info=True)
                 return self.format_error_response(e)
 
+        logger.debug("Tool zk_rebuild_index registered")
+
     def _register_resources(self) -> None:
         """Register MCP resources."""
         # Currently, we don't define resources for the Zettelkasten server
@@ -601,6 +633,16 @@ class ZettelkastenMcpServer:
         """Register MCP prompts."""
         # Currently, we don't define prompts for the Zettelkasten server
         pass
+
+    def get_tools(self) -> Dict[str, Any]:
+        """Get all registered tools."""
+        return {
+            name: {
+                "description": tool.description,
+                "parameters": tool.parameters
+            }
+            for name, tool in self.mcp.tools.items()
+        }
 
     def run(self) -> None:
         """Run the MCP server."""
