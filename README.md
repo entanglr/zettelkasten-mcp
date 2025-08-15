@@ -1,4 +1,5 @@
 # Zettelkasten MCP Server
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/entanglr/zettelkasten-mcp)](https://archestra.ai/mcp-catalog/entanglr__zettelkasten-mcp)
 
 A Model Context Protocol (MCP) server that implements the Zettelkasten knowledge management methodology, allowing you to create, link, explore and synthesize atomic notes through Claude and other MCP-compatible clients.
 
